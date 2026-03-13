@@ -1,28 +1,20 @@
-# Stage 1: Build
-FROM openjdk:17-jdk-slim AS build
+FROM openjdk:17-alpine AS build
 
 WORKDIR /app
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+COPY . .
 
-# Copy project files
-COPY pom.xml .
-COPY src ./src
+RUN apk update && apk add maven
 
-# Build the app
-RUN mvn clean package -DskipTests
+RUN mvn package
 
-# Stage 2: Runtime
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-alpine
 
 WORKDIR /app
 
-# Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port
 EXPOSE 8080
 
-# Run app
-CMD ["java", "-jar", "app.jar"]
+CMD [ "java", "-jar", "app.jar" ]
+
