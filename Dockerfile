@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine AS build
+FROM openjdk:17-jdk-alpine AS build
 
 WORKDIR /app
 
