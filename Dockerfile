@@ -1,9 +1,10 @@
 # Stage 1: Build
-FROM openjdk:17 AS build
+FROM openjdk:17-jdk-slim AS build
+
 WORKDIR /app
 
 # Install Maven
-RUN apk add --no-cache maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
 COPY pom.xml .
@@ -13,7 +14,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime
-FROM openjdk:17.0.8-jdk-alpine
+FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 
