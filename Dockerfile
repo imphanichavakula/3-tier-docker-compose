@@ -1,19 +1,28 @@
-FROM openjdk:17-jdk-alpine AS build
+# Stage 1: Build
+FROM openjdk:17.0.8-jdk-alpine AS build
 
 WORKDIR /app
 
-COPY . .
+# Install Maven
+RUN apk add --no-cache maven
 
-RUN apk update && apk add maven
+# Copy project files
+COPY pom.xml .
+COPY src ./src
 
-RUN mvn package
+# Build the app
+RUN mvn clean package -DskipTests
 
-FROM openjdk:17-alpine
+# Stage 2: Runtime
+FROM openjdk:17.0.8-jdk-alpine
 
 WORKDIR /app
 
+# Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
+# Expose port
 EXPOSE 8080
 
-CMD [ "java", "-jar", "app.jar" ]
+# Run app
+CMD ["java", "-jar", "app.jar"]
